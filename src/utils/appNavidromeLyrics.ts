@@ -1,7 +1,9 @@
 import { LyricParserFactory } from './lyrics/LyricParserFactory';
 import type { LyricData } from '../types';
-import type { NavidromeConfig, NavidromeSong, StructuredLyric } from '../types/navidrome';
+import type { NavidromeConfig, NavidromeMatchData, NavidromeSong, StructuredLyric } from '../types/navidrome';
+import { getNavidromeMatchCacheKeyForId } from '../types/navidrome';
 import { navidromeApi } from '../services/navidromeService';
+import { getFromCache, saveToCache } from '../services/db';
 import { getProviderSongMetadata } from '../services/onlineMusic/songMetadata';
 import { hasRenderableLyrics } from './appPlaybackHelpers';
 import {
@@ -93,4 +95,26 @@ export const hydrateNavidromeLyricPayload = async (config: NavidromeConfig, navi
             console.warn('[App] Failed to fetch Navidrome lyrics:', e);
         }
     }
+};
+
+/**
+ * 把一份导入的歌词记成这首歌的匹配结果。
+ *
+ * Navidrome 歌曲只有一个歌词读取口：`navidrome_match_<id>`。播放那条路不读 `lyric_*_state`
+ * （那是在线歌曲的存档方式），所以单曲导入与批量导入都写这里——播放、以及歌词导出，因此看到同一份。
+ * 已有的匹配记录是合并而不是替换：封面和匹配到的元数据属于另一件事，不该被一份歌词文件抹掉。
+ */
+export const saveImportedNavidromeLyrics = async (
+    navidromeId: string,
+    lyrics: LyricData,
+): Promise<void> => {
+    const key = getNavidromeMatchCacheKeyForId(navidromeId);
+    const previous = await getFromCache<NavidromeMatchData>(key);
+    await saveToCache(key, {
+        ...previous,
+        matchedLyrics: lyrics,
+        matchedIsPureMusic: false,
+        lyricsSource: 'online',
+        useOnlineLyrics: true,
+    } satisfies NavidromeMatchData);
 };

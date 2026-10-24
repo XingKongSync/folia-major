@@ -1008,6 +1008,19 @@ export default {
     "playlist": "Playlist",
     "account": "Kualitas"
   },
+  "lyricImport": {
+    "pick": "Pilih arsip lirik (.zip)",
+    "start": "Impor",
+    "running": "Mengimpor…",
+    "done": "{{count}} lirik diimpor",
+    "skipped": "{{count}} berkas dilewati",
+    "hint": "Hanya dokumen .fia hasil ekspor Folia yang bisa ditempatkan: di dalamnya ada identitas lagunya. Lirik dipakai saat lagu itu diputar berikutnya. LRC biasa tidak membawa identitas sehingga tidak bisa ditempatkan otomatis.",
+    "failed": "Impor gagal",
+    "reason_notFoliaDocument": "Bukan dokumen lirik Folia",
+    "reason_noSongKey": "Berkas tidak menyebut lagu mana pun",
+    "reason_unsupportedSong": "Lirik lagu ini tidak disimpan di sini",
+    "reason_unreadable": "Berkas tidak bisa dibaca"
+  },
   "lyricExport": {
     "exported": "Lirik diekspor",
     "noLyrics": "Tidak ada lirik untuk diekspor",
@@ -1054,6 +1067,8 @@ export default {
     "importHeading": "Impor",
     "importChoose": "Pilih berkas lirik",
     "importFormats": "lrc, vtt, ttml, qrc, yrc, krc, txt, atau .fia hasil ekspor Folia",
+    "importDone": "Lirik hasil impor sudah dipakai",
+    "importFailed": "Gagal mengimpor lirik",
     "exportHeading": "Ekspor lagu ini",
     "batchTitle": "Ekspor semua lirik di perangkat ini",
     "batchDesc": "Membuka ekspor massal di palet perintah"

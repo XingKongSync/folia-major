@@ -22,7 +22,10 @@ import type { SongLike } from './panelTab/shell/LikeButton';
 import type { OnlineLyricsState } from '../types';
 import type { AudioQualityPreference } from '../types/onlineMusic';
 import type { ThemeSourceModel } from '../hooks/themeControllerState';
-import { getPlaybackSourceRef } from '../utils/appPlaybackGuards';
+import { getPlaybackSourceRef, resolveNavidromePlaybackCarrier } from '../utils/appPlaybackGuards';
+import { saveImportedNavidromeLyrics } from '../utils/appNavidromeLyrics';
+import { LyricParserFactory } from '../utils/lyrics/LyricParserFactory';
+import { setStatusMessage } from '../stores/useStatusMessageStore';
 import { canSaveQueueAsLocalPlaylist } from '../utils/queueReorder';
 import { canDislikeCurrentSong, resolveLikeAvailability } from '../utils/playerLikeAvailability';
 import { usePlayerPanelTabShortcut } from '../hooks/usePlayerPanelTabShortcut';
@@ -473,6 +476,27 @@ const UnifiedPanel: React.FC<UnifiedPanelProps> = ({
                     currentSong={currentSong}
                     hasLyrics={hasLyrics}
                     onMatchOnline={onMatchOnline}
+                    // A Navidrome song can take a lyric file like any other: it is filed as the song's
+                    // match, the one record its playback path reads, so the lyric shows up on the next
+                    // play rather than only in this panel.
+                    onImportLyrics={async (content, fileName) => {
+                        const navidromeId = resolveNavidromePlaybackCarrier(currentSong)?.navidromeData?.id;
+                        if (!navidromeId) return;
+                        try {
+                            // The same parser the local and online tabs import through, so .fia, LRC
+                            // and the rest are read exactly as they would be there.
+                            const lyrics = await LyricParserFactory.parse({ type: 'local', lrcContent: content });
+                            if (!lyrics) {
+                                setStatusMessage({ type: 'error', text: t('lyricFile.importFailed') });
+                                return;
+                            }
+                            await saveImportedNavidromeLyrics(navidromeId, lyrics);
+                            setStatusMessage({ type: 'success', text: t('lyricFile.importDone') });
+                        } catch (error) {
+                            console.warn('[PlayerPanel] Navidrome lyric import failed', error, fileName);
+                            setStatusMessage({ type: 'error', text: t('lyricFile.importFailed') });
+                        }
+                    }}
                     lyricTimelineOffsetMs={lyricTimelineOffsetMs}
                     onLyricTimelineOffsetChange={onLyricTimelineOffsetChange}
                     replayGainMode={replayGainMode}

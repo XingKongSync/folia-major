@@ -1008,6 +1008,19 @@ export default {
     "playlist": "播放列表",
     "account": "音质"
   },
+  "lyricImport": {
+    "pick": "选择一个歌词压缩包（zip）",
+    "start": "开始导入",
+    "running": "正在导入…",
+    "done": "已导入 {{count}} 首歌词",
+    "skipped": "跳过 {{count}} 个文件",
+    "hint": "只认 Folia 导出的 .fia——里面记着这首歌的身份。导入后，该歌曲下次播放时生效；普通 .lrc 没有身份信息，无法自动归位。",
+    "failed": "导入失败",
+    "reason_notFoliaDocument": "不是 Folia 歌词文件",
+    "reason_noSongKey": "文件里没有歌曲身份",
+    "reason_unsupportedSong": "这首歌的歌词不存放在这里",
+    "reason_unreadable": "文件读取失败"
+  },
   "lyricExport": {
     "exported": "歌词已导出",
     "noLyrics": "当前没有可导出的歌词",
@@ -1054,6 +1067,8 @@ export default {
     "importHeading": "导入",
     "importChoose": "选择歌词文件",
     "importFormats": "lrc、vtt、ttml、qrc、yrc、krc、txt，或 Folia 导出的 .fia",
+    "importDone": "已换上导入的歌词",
+    "importFailed": "导入歌词失败",
     "exportHeading": "导出这首歌",
     "batchTitle": "批量导出本机歌词",
     "batchDesc": "在命令面板里一次导出所有缓存的歌词"

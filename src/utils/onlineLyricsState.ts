@@ -36,6 +36,22 @@ export const saveOnlineLyricsState = async (song: SongResult, state: OnlineLyric
     await saveToCache(key, migrateOnlineLyricsState(state).value);
 };
 
+/** The state key for a song key already in `getPlaybackSongKey` form (`navidrome:123`, `online:netease:1`). */
+export const getOnlineLyricsStateCacheKeyForSongKey = (songKey: string): string => (
+    `lyric_${songKey}${ONLINE_LYRICS_STATE_SUFFIX}`
+);
+
+/**
+ * Writes a state for a song key rather than a song.
+ *
+ * The batch lyric import reads the song's key out of the `.fia` document it is importing and has no
+ * SongResult to hand - the song may not even be in any list this session has loaded. The key it
+ * writes is the same one `loadOnlineLyricsState` reads, so the two paths meet.
+ */
+export const saveOnlineLyricsStateForSongKey = async (songKey: string, state: OnlineLyricsState): Promise<void> => {
+    await saveToCache(getOnlineLyricsStateCacheKeyForSongKey(songKey), migrateOnlineLyricsState(state).value);
+};
+
 export const resolveOnlineLyrics = (
     state: OnlineLyricsState | null | undefined,
     fallbackLyrics: OnlineLyricsState['onlineOverrideLyrics']

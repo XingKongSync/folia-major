@@ -1008,6 +1008,19 @@ export default {
     "playlist": "Playlist",
     "account": "Quality"
   },
+  "lyricImport": {
+    "pick": "Choose a lyric archive (.zip)",
+    "start": "Import",
+    "running": "Importing…",
+    "done": "Imported {{count}} lyrics",
+    "skipped": "{{count}} files skipped",
+    "hint": "Only .fia documents exported by Folia are placed: they carry the song's identity. A song picks its lyric up the next time it plays. Plain .lrc carries no identity and cannot be placed automatically.",
+    "failed": "Import failed",
+    "reason_notFoliaDocument": "Not a Folia lyric document",
+    "reason_noSongKey": "The file names no song",
+    "reason_unsupportedSong": "This song's lyric is not stored here",
+    "reason_unreadable": "The file could not be read"
+  },
   "lyricExport": {
     "exported": "Lyrics exported",
     "noLyrics": "No lyrics to export",
@@ -1054,6 +1067,8 @@ export default {
     "importHeading": "Import",
     "importChoose": "Choose a lyric file",
     "importFormats": "lrc, vtt, ttml, qrc, yrc, krc, txt, or a .fia exported from Folia",
+    "importDone": "The imported lyrics are in use",
+    "importFailed": "Could not import those lyrics",
     "exportHeading": "Export this song",
     "batchTitle": "Export every lyric on this device",
     "batchDesc": "Opens the batch export in the command palette"

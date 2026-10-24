@@ -1,5 +1,6 @@
 import type { NavidromeConfig } from '../../types/navidrome';
 import type { NavidromeMatchData } from '../../types/navidrome';
+import { NAVIDROME_MATCH_CACHE_PREFIX } from '../../types/navidrome';
 import { migrateLyricDataRenderHints } from '../../utils/lyrics/renderHints';
 import { judgeLyricsForExport } from '../../utils/lyrics/exportableLyrics';
 import { isPureMusicLyricText } from '../../utils/lyrics/pureMusic';
@@ -35,7 +36,7 @@ import {
 // name must not lose the lyrics.
 
 /** The match record's key prefix, from getNavidromeMatchCacheKey. */
-const MATCH_KEY_PREFIX = 'navidrome_match_';
+const MATCH_KEY_PREFIX = NAVIDROME_MATCH_CACHE_PREFIX;
 
 /** saveToCache files a match under one of these (see the Navidrome match path in the playback controller). */
 const CACHE_TABLES = ['metadata_cache', 'api_cache'] as const;

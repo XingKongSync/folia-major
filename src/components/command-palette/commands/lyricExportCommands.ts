@@ -1,6 +1,7 @@
-import { FileJson, FileText, PackageOpen } from 'lucide-react';
+import { FileJson, FileText, FileUp, PackageOpen } from 'lucide-react';
 import { defineCommand } from '../commandFactories';
 import { lyricExportSurface } from '../surfaces/lyricExportSurface';
+import { lyricImportSurface } from '../surfaces/lyricImportSurface';
 import type { CommandPaletteCommand, CommandPaletteContext } from '../types';
 import type { LyricExportFormat } from '../../../services/lyricExport/types';
 import { hasExportableLyrics } from '../../../utils/lyrics/exportableLyrics';
@@ -79,5 +80,17 @@ export const lyricExportCommands: CommandPaletteCommand[] = [
         icon: FileText,
         isAvailable: hasLyricsOnScreen,
         execute: (_input, context) => exportCurrent('lrc', context),
+    }),
+    defineCommand({
+        id: 'import-lyric-archive',
+        group: 'settings',
+        title: 'Import lyrics from an archive',
+        description: 'Put every .fia in a zip back on the song it names',
+        keywords: ['lyric import', 'import lyrics', 'restore lyrics', 'fia import', '导入歌词', '批量导入歌词', '恢复歌词'],
+        icon: FileUp,
+        requiresInput: true,
+        surface: lyricImportSurface,
+        // The surface owns the run; the command only opens it.
+        execute: () => false,
     }),
 ];

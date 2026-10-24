@@ -8,13 +8,16 @@ import SourceTab from './SourceTab';
 import { EmptyState } from './shell/EmptyState';
 
 // src/components/panelTab/NaviTab.tsx
-// The song's tab for a song from a Navidrome server: hands SourceTab what it shows for it. Such a
-// song takes no lyric file, so there is nothing to import.
+// The song's tab for a song from a Navidrome server: hands SourceTab what it shows for it.
+// It takes a lyric file like any other source: an imported lyric is filed as the song's match, which
+// is the record its playback path reads (utils/appNavidromeLyrics.ts, saveImportedNavidromeLyrics).
 
 interface NaviTabProps {
     currentSong: SongResult;
     hasLyrics: boolean;
     onMatchOnline: () => void;
+    /** Takes the text of a chosen lyric file. */
+    onImportLyrics?: (content: string, fileName: string) => void;
     lyricTimelineOffsetMs: number;
     onLyricTimelineOffsetChange: (offsetMs: number) => void;
     replayGainMode: ReplayGainMode;
@@ -26,6 +29,7 @@ const NaviTab: React.FC<NaviTabProps> = ({
     currentSong,
     hasLyrics,
     onMatchOnline,
+    onImportLyrics,
     lyricTimelineOffsetMs,
     onLyricTimelineOffsetChange,
     replayGainMode,
@@ -65,6 +69,7 @@ const NaviTab: React.FC<NaviTabProps> = ({
             key={navidromeData.id}
             lyricSources={lyricSources}
             onMatchOnline={onMatchOnline}
+            onImportLyrics={onImportLyrics}
             gainValues={{
                 trackGain: navidromeData.replayGain?.trackGain,
                 albumGain: navidromeData.replayGain?.albumGain,

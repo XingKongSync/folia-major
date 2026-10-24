@@ -371,8 +371,14 @@ export interface NavidromeMatchData {
     matchedLyricsProviderPlatform?: AmllDbPlatform;
 }
 
+/** Every Navidrome match record's cache key starts with this; the batch lyric import/export walk by it. */
+export const NAVIDROME_MATCH_CACHE_PREFIX = 'navidrome_match_';
+
+/** The cache key a Navidrome song's match is stored under, from its media id alone. */
+export const getNavidromeMatchCacheKeyForId = (navidromeId: string): string => `${NAVIDROME_MATCH_CACHE_PREFIX}${navidromeId}`;
+
 /** The cache key a Navidrome song's match is stored under. */
-export const getNavidromeMatchCacheKey = (song: NavidromeSong): string => `navidrome_match_${song.navidromeData.id}`;
+export const getNavidromeMatchCacheKey = (song: NavidromeSong): string => getNavidromeMatchCacheKeyForId(song.navidromeData.id);
 
 // Type guard for NavidromeSong
 export function isNavidromeSong(song: SongResult): song is NavidromeSong {

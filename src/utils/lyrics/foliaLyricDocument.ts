@@ -203,3 +203,38 @@ export const parseFoliaLyricDocument = (text: string): LyricData | null => {
         lines,
     });
 };
+
+/**
+ * 只读信封本身：`song.key`、来源、偏移、导出时间，不解析歌词。
+ *
+ * 批量导入要靠 `song.key` 决定这份歌词属于哪首歌（单曲导入用不到它——那份歌词挂在正在播放的
+ * 歌上）。信封与歌词分开读，是因为归位判断只关心这几项，格式不对时也没必要付解析歌词的代价。
+ * 校验与 parseFoliaLyricDocument 保持一致：格式名或版本不认识就是 null。
+ */
+export const parseFoliaLyricDocumentMeta = (text: string): FoliaLyricDocumentMeta | null => {
+    if (!looksLikeFoliaLyricDocument(text)) return null;
+
+    let parsed: unknown;
+    try {
+        parsed = JSON.parse(text.replace(/^\uFEFF/, ''));
+    } catch {
+        return null;
+    }
+
+    if (!parsed || typeof parsed !== 'object') return null;
+    const document = parsed as Partial<FoliaLyricDocument>;
+    if (document.format !== FOLIA_LYRIC_DOCUMENT_FORMAT) return null;
+    if (document.version !== FOLIA_LYRIC_DOCUMENT_VERSION) return null;
+
+    const song = document.song && typeof document.song === 'object'
+        ? compactSong(document.song as FoliaLyricDocumentSong)
+        : null;
+    const exportedAt = typeof document.exportedAt === 'string' ? new Date(document.exportedAt) : null;
+
+    return {
+        ...(song && Object.keys(song).length > 0 ? { song } : {}),
+        ...(document.source ? { source: document.source } : {}),
+        ...(typeof document.offsetMs === 'number' && Number.isFinite(document.offsetMs) ? { offsetMs: document.offsetMs } : {}),
+        ...(exportedAt && !Number.isNaN(exportedAt.getTime()) ? { exportedAt } : {}),
+    };
+};
