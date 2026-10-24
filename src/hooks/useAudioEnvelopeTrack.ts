@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { selectDisplaySong, usePlaybackStore } from '../stores/usePlaybackStore';
+import { usePlaybackStore } from '../stores/usePlaybackStore';
 import { getPlaybackAnalysisKey } from '../services/playbackRecovery/representationRegistry';
 import { canBuildPlaybackGraph } from '../utils/platform';
 import { loadAudioEnvelope } from '../services/audioEnvelope/audioEnvelopeSource';
@@ -29,7 +29,10 @@ const RETRY_DELAY_MS = 3000;
 /** Whether the envelope is what drives the visualizer here; the frame loop asks this only for logging. */
 export function useAudioEnvelopeTrack(): boolean {
     const wanted = !canBuildPlaybackGraph();
-    const song = usePlaybackStore(selectDisplaySong);
+    // The same expression as the store's `selectDisplaySong`, written out here so this hook needs no
+    // named export from that module. Several tests mock it partially and a name they do not list
+    // throws at import (test/unit/playback/previewLyricClock.test.ts did exactly that).
+    const song = usePlaybackStore(state => state.transitionDisplay?.song ?? state.currentSong);
     const identity = wanted && song ? getPlaybackAnalysisKey(song) : null;
 
     useEffect(() => {
