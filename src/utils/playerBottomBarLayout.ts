@@ -46,19 +46,29 @@ export const resolvePlayerBottomComponentBottomPx = (
 );
 
 /**
- * 平台底部安全区的像素值，从 CSS 变量 `--safe-bottom` 读一次就缓存。
+ * 平台底部安全区的像素值，读一次就缓存。
  *
- * 用 CSS 变量而不是直接读 env()：JS 读不到 env()，而变量在 index.css 里定义一次即可。
- * 桌面端恒为 0，所以下面的基线计算与改动前逐像素相同。缓存是因为这个函数跑在
- * useTransform 里（每帧都可能调用），而安全区在一次会话里除旋转外不变。
+ * JS 读不到 env()，只能让浏览器把它算进某个真实属性的值里再取回来：临时插一个铺满屏幕的元素，
+ * 把四个 inset 写成它的 padding，读 paddingBottom。不用 CSS 自定义属性中转——`--safe-bottom`
+ * 的值本身就是 `env(...)`，getPropertyValue 对这种情况能否解析成像素没有保证（实测：车载浏览器
+ * 里与探针页同样带 viewport-fit=cover，用自定义属性读回 0，用 padding 读回 49）。
+ *
+ * 缓存是因为这个函数跑在 useTransform 里（每帧都可能调用），而安全区在一次会话里除旋转外不变。
+ * 桌面端与桌面 App 上恒为 0，所以基线计算与改动前逐像素相同。
  */
 let safeAreaBottomPx: number | null = null;
 const readSafeAreaBottomPx = (): number => {
     if (safeAreaBottomPx !== null) return safeAreaBottomPx;
-    if (typeof window === 'undefined' || typeof document === 'undefined') return 0;
-    const value = Number.parseFloat(
-        getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom'),
-    );
+    if (typeof document === 'undefined' || !document.body) return 0;
+    const probe = document.createElement('div');
+    probe.setAttribute('aria-hidden', 'true');
+    // 四个方向都给 fallback：任何一个 env() 取不到值都会让整条 padding 声明失效。
+    probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none;'
+        + 'padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) '
+        + 'env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';
+    document.body.appendChild(probe);
+    const value = Number.parseFloat(getComputedStyle(probe).paddingBottom);
+    probe.remove();
     safeAreaBottomPx = Number.isFinite(value) && value > 0 ? value : 0;
     return safeAreaBottomPx;
 };

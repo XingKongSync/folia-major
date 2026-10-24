@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover 有两个作用，缺一不可：让页面铺满整屏（配 black-translucent 的状态栏），
+         以及让 env(safe-area-inset-*) 取到真实值——不写这一项，那些值恒为 0。底部基线的让位
+         （utils/playerBottomBarLayout.ts）与 CarPlay 分屏时被系统坞压住的那 49px 都靠它。 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="referrer" content="no-referrer" />
     <meta name="description" content="一个动态歌词播放器，支持 AI 主题生成" />
     <meta name="theme-color" content="#09090b" />
