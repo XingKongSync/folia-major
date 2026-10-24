@@ -41,7 +41,27 @@ export const clampPlayerBottomBarOffset = (offsetPx: number, viewportHeightPx: n
 export const resolvePlayerBottomComponentBottomPx = (
     globalOffsetPx: number,
     componentBaseBottomPx: number,
-): number => componentBaseBottomPx + globalOffsetPx - PLAYER_BOTTOM_BAR_BASE_OFFSET_PX;
+): number => (
+    componentBaseBottomPx + globalOffsetPx - PLAYER_BOTTOM_BAR_BASE_OFFSET_PX + readSafeAreaBottomPx()
+);
+
+/**
+ * 平台底部安全区的像素值，从 CSS 变量 `--safe-bottom` 读一次就缓存。
+ *
+ * 用 CSS 变量而不是直接读 env()：JS 读不到 env()，而变量在 index.css 里定义一次即可。
+ * 桌面端恒为 0，所以下面的基线计算与改动前逐像素相同。缓存是因为这个函数跑在
+ * useTransform 里（每帧都可能调用），而安全区在一次会话里除旋转外不变。
+ */
+let safeAreaBottomPx: number | null = null;
+const readSafeAreaBottomPx = (): number => {
+    if (safeAreaBottomPx !== null) return safeAreaBottomPx;
+    if (typeof window === 'undefined' || typeof document === 'undefined') return 0;
+    const value = Number.parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom'),
+    );
+    safeAreaBottomPx = Number.isFinite(value) && value > 0 ? value : 0;
+    return safeAreaBottomPx;
+};
 
 /**
  * 字幕层的 bottom，把「控制条在不在」表达成 0..1 的连续量，好让这一段单独走 spring。
@@ -56,6 +76,7 @@ export const resolvePlayerSubtitleBottomFromPresence = (
     controlBarPresence: number,
 ): number => (
     PLAYER_BOTTOM_BAR_BASE_OFFSET_PX
+    + readSafeAreaBottomPx()
     + controlBarPresence * (
         (offsetPx - PLAYER_BOTTOM_BAR_BASE_OFFSET_PX) + PLAYER_BOTTOM_BAR_SUBTITLE_CLEARANCE_PX
     )

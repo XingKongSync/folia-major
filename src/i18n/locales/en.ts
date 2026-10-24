@@ -984,6 +984,8 @@ export default {
     "scopeOnlineDesc": "Lyrics cached for online songs you have played",
     "scopeLocal": "Local library",
     "scopeLocalDesc": "Lyrics matched online for local songs, named after each audio file in its original folder, ready to drop beside it",
+    "scopeNavidrome": "Navidrome matched lyrics",
+    "scopeNavidromeDesc": "Lyrics matched for songs in a Navidrome library, named after the title and artist",
     "formatFia": ".fia (Folia, lossless)",
     "formatFiaDesc": "Keeps word timing, translations, background vocals and your saved segmentation; imports straight back into Folia",
     "formatLrc": "Enhanced LRC",

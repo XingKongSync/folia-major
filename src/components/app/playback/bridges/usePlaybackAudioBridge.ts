@@ -4,6 +4,7 @@ import { PlayerState } from '../../../../types';
 import type { ReplayGainInfo, ReplayGainMode, SongResult, StatusMessage } from '../../../../types';
 import type { LocalSong } from '../../../../types';
 import { resolveNavidromePlaybackCarrier } from '../../../../utils/appPlaybackGuards';
+import { canBuildPlaybackGraph } from '../../../../utils/platform';
 import { calculateReplayGain } from '../../../../utils/replayGain';
 import { applyAudioEqualizerSettings } from '../../../../services/audioEqualizerGraph';
 import { type AudioEffectChain } from '../../../../services/audioEffects/effectChain';
@@ -18,6 +19,9 @@ import { useTranslation } from 'react-i18next';
 import { usePlaybackStore } from '../../../../stores/usePlaybackStore';
 
 // src/components/app/playback/bridges/usePlaybackAudioBridge.ts
+
+/** The direct-output line prints once, not once per play(): the reason does not change mid-session. */
+let directOutputLogged = false;
 
 type UsePlaybackAudioBridgeParams = {
 
@@ -130,6 +134,18 @@ export function usePlaybackAudioBridge({
         // The context is the sentinel, not the source node: a deck that failed to connect must
         // not let this run twice, because createMediaElementSource throws on a second call.
         if (!audioRef.current || audioContextRef.current) return;
+        // iOS WebKit: an element wired into a context stops reaching an external output route
+        // (utils/platform.ts, canBuildPlaybackGraph, and the measurements in its comment). Nothing is
+        // built there, so the element keeps its own output - the speaker, AirPlay and CarPlay alike -
+        // and the visualizer reads the track's envelope instead of a live analyser.
+        if (!canBuildPlaybackGraph()) {
+            if (!directOutputLogged) {
+                directOutputLogged = true;
+                console.info('[AudioContext] direct output: the media element is not wired into Web Audio on iOS (WebKit 293891).'
+                    + ' Equaliser, effects, automix and live analysis are off; the visualizer reads the track envelope.');
+            }
+            return;
+        }
         try {
             const AudioContextClass = window.AudioContext || (window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
             const ctx = new AudioContextClass();

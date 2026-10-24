@@ -6,7 +6,14 @@ import type { FoliaLyricDocumentSource, FoliaLyricDocumentSong } from '../../uti
 
 export type LyricExportFormat = 'fia' | 'lrc';
 
-export type LyricExportScope = 'online' | 'local';
+/**
+ * What a batch export gathers.
+ *
+ * `online` is the `lyric_` cache of online-provider songs, `local` the imported file library, and
+ * `navidrome` the matches stored for a Navidrome library (which is neither of the other two - see
+ * collectNavidromeLyrics).
+ */
+export type LyricExportScope = 'online' | 'local' | 'navidrome';
 
 /** Where a missing title can be looked up online; only online cache entries carry one. */
 export interface LyricExportProviderRef {

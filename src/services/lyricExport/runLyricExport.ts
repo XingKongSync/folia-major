@@ -2,6 +2,7 @@ import type { LocalLyricsPriority } from '../../types';
 import { applyUserAdjustments } from './applyUserAdjustments';
 import { buildLyricExportArchive, type LyricExportArchive } from './buildLyricExportArchive';
 import { collectLocalLyrics } from './collectLocalLyrics';
+import { collectNavidromeLyrics } from './collectNavidromeLyrics';
 import { collectOnlineLyrics } from './collectOnlineLyrics';
 import { resolveExportMetadata } from './resolveExportMetadata';
 import {
@@ -37,6 +38,12 @@ export const runLyricExport = async (
         const online = await collectOnlineLyrics();
         collected.entries.push(...online.entries);
         collected.skipped.push(...online.skipped);
+    }
+    throwIfAborted(signal);
+    if (options.scopes.includes('navidrome')) {
+        const navidrome = await collectNavidromeLyrics(context);
+        collected.entries.push(...navidrome.entries);
+        collected.skipped.push(...navidrome.skipped);
     }
     throwIfAborted(signal);
     if (options.scopes.includes('local')) {

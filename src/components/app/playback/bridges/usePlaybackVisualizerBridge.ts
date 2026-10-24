@@ -17,9 +17,14 @@ import {
 import { getTransitionHandoffProgress } from '../../../../services/automix/transitionCue';
 import { tickBeatFx } from '../../../../services/beatFx/beatFxLive';
 import { useBeatFxTrack } from '../../../../hooks/useBeatFxTrack';
+import { useAudioEnvelopeTrack } from '../../../../hooks/useAudioEnvelopeTrack';
+import { readLiveEnvelopeFrame } from '../../../../services/audioEnvelope/audioEnvelopeLive';
 import { readIncomingLyricClock } from './incomingLyricClock';
 
 // src/components/app/playback/bridges/usePlaybackVisualizerBridge.ts
+
+/** The spectrum a path with no live analyser hands the modes; one shared array, never written. */
+const EMPTY_SPECTRUM = new Uint8Array(0);
 
 type UsePlaybackVisualizerBridgeParams = {
 
@@ -97,6 +102,10 @@ export function usePlaybackVisualizerBridge({
     // switching it does not rebuild the frame loop.
     const beatFxWantedRef = useRef(false);
     beatFxWantedRef.current = useBeatFxTrack();
+    // Without a live analyser (iOS: utils/platform.ts, canBuildPlaybackGraph) the five band values
+    // below have no source unless the track is analysed ahead of time; this loads that. Everywhere
+    // else it is a no-op and the analyser drives them as before.
+    useAudioEnvelopeTrack();
     const handoffLineIndexRef = useRef(-1);
     // The lyric offsets as the loop reads them. The settle moves the displayed one onto the incoming
     // track's as it copies that track's clock: the prop catches up a render later, and a frame read in
@@ -150,6 +159,13 @@ export function usePlaybackVisualizerBridge({
         // a visible stutter at exactly the moment meant to be seamless.
         const hasAudibleSignal = isActuallyPlaying || isTransitionAudible();
 
+        // One curve for both sources: the envelope is written in the analyser's own 0..255 scale, so
+        // live bytes and pre-computed ones go through exactly the same mapping.
+        const process = (value: number, boost = 2) => {
+            const normalized = value / 255;
+            return Math.pow(normalized, boost) * 255;
+        };
+
         if (hasAudibleSignal && analyserRef.current) {
             const bufferLength = analyserRef.current.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
@@ -173,11 +189,6 @@ export function usePlaybackVisualizerBridge({
             const vocal = getEnergy(1000, 3500);
             const treble = getEnergy(3500, 12000);
 
-            const process = (value: number, boost = 2) => {
-                const normalized = value / 255;
-                return Math.pow(normalized, boost) * 255;
-            };
-
             audioPower.set(process((bass + lowMid) / 2, 3));
             audioBands.bass.set(process(bass, 1.8));
             audioBands.lowMid.set(process(lowMid, 2));
@@ -185,15 +196,33 @@ export function usePlaybackVisualizerBridge({
             audioBands.vocal.set(process(vocal, 1.5));
             audioBands.treble.set(process(treble, 2));
         } else {
-            const time = Date.now() / 2000;
-            const breath = (Math.sin(time) + 1) * 20;
-            audioPower.set(breath);
-            audioBands.bass.set(breath);
-            audioBands.lowMid.set(breath);
-            audioBands.mid.set(breath);
-            audioBands.vocal.set(breath);
-            audioBands.treble.set(breath);
-            audioBands.spectrum?.set(new Uint8Array(0));
+            // No analyser to read - iOS, where the element is deliberately not wired into Web Audio -
+            // so the track's own envelope answers, read at the element's own clock. Until that
+            // analysis is in hand (or with no bytes to analyse) this falls through to the breath.
+            const envelopeFrame = hasAudibleSignal && audioElement
+                ? readLiveEnvelopeFrame(audioElement.currentTime)
+                : null;
+            if (envelopeFrame) {
+                audioPower.set(process(envelopeFrame.power, 3));
+                audioBands.bass.set(process(envelopeFrame.bass, 1.8));
+                audioBands.lowMid.set(process(envelopeFrame.lowMid, 2));
+                audioBands.mid.set(process(envelopeFrame.mid, 2));
+                audioBands.vocal.set(process(envelopeFrame.vocal, 1.5));
+                audioBands.treble.set(process(envelopeFrame.treble, 2));
+                // No spectrum offline: every mode reads the five bands, and the consumers already
+                // treat an empty spectrum as "no live data" - the idle branch hands them the same.
+                audioBands.spectrum?.set(EMPTY_SPECTRUM);
+            } else {
+                const time = Date.now() / 2000;
+                const breath = (Math.sin(time) + 1) * 20;
+                audioPower.set(breath);
+                audioBands.bass.set(breath);
+                audioBands.lowMid.set(breath);
+                audioBands.mid.set(breath);
+                audioBands.vocal.set(breath);
+                audioBands.treble.set(breath);
+                audioBands.spectrum?.set(EMPTY_SPECTRUM);
+            }
         }
 
         if (isActuallyPlaying && audioElement) {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Cloud, FileJson, FileText, HardDrive, Layers, Tag } from 'lucide-react';
+import { Cloud, FileJson, FileText, HardDrive, Layers, Server, Tag } from 'lucide-react';
 import type { Theme } from '../../../types';
 import { useLyricSettingsStore } from '../../../stores/useLyricSettingsStore';
 import { setStatusMessage } from '../../../stores/useStatusMessageStore';
@@ -36,7 +36,7 @@ type RunState =
     | { kind: 'done'; exported: number; skipped: number };
 
 const DEFAULT_OPTIONS: LyricExportOptions = {
-    scopes: ['online', 'local'],
+    scopes: ['online', 'local', 'navidrome'],
     formats: ['fia', 'lrc'],
     includeTranslation: true,
     includeRomanization: true,
@@ -143,6 +143,8 @@ export default function LyricExportSurfaceView({
                                 selected={options.scopes.includes('online')} disabled={isRunning} onClick={toggleScope('online')} />
                             <OptionCard tone={tone} icon={HardDrive} label={t('lyricExport.scopeLocal')} description={t('lyricExport.scopeLocalDesc')}
                                 selected={options.scopes.includes('local')} disabled={isRunning} onClick={toggleScope('local')} />
+                            <OptionCard tone={tone} icon={Server} label={t('lyricExport.scopeNavidrome')} description={t('lyricExport.scopeNavidromeDesc')}
+                                selected={options.scopes.includes('navidrome')} disabled={isRunning} onClick={toggleScope('navidrome')} />
                         </div>
                     </section>
 

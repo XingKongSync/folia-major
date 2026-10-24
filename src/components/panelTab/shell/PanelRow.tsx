@@ -19,9 +19,9 @@ export const PanelRow: React.FC<PanelRowProps> = ({ label, hint, children }) => 
     const labelId = useId();
 
     return (
-        <div role="group" aria-labelledby={labelId} className="flex min-h-11 flex-wrap items-center gap-x-3 px-1 py-1.5">
+        <div role="group" aria-labelledby={labelId} data-panel-row className="flex min-h-11 flex-wrap items-center gap-x-3 px-1 py-1.5">
             <div className="min-w-0 flex-[1_1_72px]">
-                <div id={labelId} className="text-sm leading-5">{label}</div>
+                <div id={labelId} data-panel-row-label className="text-sm leading-5">{label}</div>
                 {hint && <div className="text-xs leading-4 text-[color:var(--st-t3)]">{hint}</div>}
             </div>
             {children && <div className="ml-auto flex min-w-0 max-w-full items-center gap-1.5">{children}</div>}

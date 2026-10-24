@@ -984,6 +984,8 @@ export default {
     "scopeOnlineDesc": "Lirik yang tersimpan untuk lagu online yang pernah diputar",
     "scopeLocal": "Pustaka lokal",
     "scopeLocalDesc": "Lirik hasil pencocokan online untuk lagu lokal, dinamai sesuai berkas audionya di folder aslinya, siap diletakkan di sebelahnya",
+    "scopeNavidrome": "Lirik cocok Navidrome",
+    "scopeNavidromeDesc": "Lirik hasil pencocokan untuk lagu di pustaka Navidrome, dinamai sesuai judul dan artisnya",
     "formatFia": ".fia (Folia, lossless)",
     "formatFiaDesc": "Menyimpan timing per kata, terjemahan, vokal latar, dan segmentasi Anda; bisa langsung diimpor kembali ke Folia",
     "formatLrc": "LRC enhanced",

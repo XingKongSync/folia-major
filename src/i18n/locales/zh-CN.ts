@@ -984,6 +984,8 @@ export default {
     "scopeOnlineDesc": "播放过的在线歌曲缓存下来的歌词",
     "scopeLocal": "本地曲库",
     "scopeLocalDesc": "本地歌曲在线匹配到的歌词，按音频文件名和原目录导出，解压后可直接放回歌曲旁边",
+    "scopeNavidrome": "Navidrome 匹配歌词",
+    "scopeNavidromeDesc": "为 Navidrome 歌曲匹配到的歌词，按歌曲标题与艺人命名导出",
     "formatFia": ".fia（Folia 无损）",
     "formatFiaDesc": "完整保留逐字时间轴、翻译、背景和声和你保存的分词，可以直接导回 Folia",
     "formatLrc": "增强型 LRC",
